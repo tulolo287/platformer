@@ -42,11 +42,12 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void create () {
+
 		Gdx.input.setInputProcessor(new MyInputProcessor());
 
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, V_WIDTH / PPM, V_HEIGHT / PPM);
+		camera.setToOrtho(false, V_WIDTH, V_HEIGHT);
 
 		hudCamera = new OrthographicCamera();
 		hudCamera.setToOrtho(false, V_WIDTH / PPM, V_HEIGHT / PPM);
@@ -56,8 +57,7 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		Gdx.gl20.glClearColor(0, 0, 0, 0);
-		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 		accum += Gdx.graphics.getDeltaTime();
 		while (accum >= STEP) {
 			accum -= STEP;

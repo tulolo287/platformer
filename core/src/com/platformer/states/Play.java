@@ -1,10 +1,18 @@
 package com.platformer.states;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -20,29 +28,44 @@ public class Play extends GameState {
     private final BitmapFont font = new BitmapFont();
     private World world;
     private Box2DDebugRenderer box2DDebugRenderer;
+    private Body playerBody;
+    private MyContactListener cl;
+
+    private OrthographicCamera camera;
+
+    private TiledMap tiledMap;
+    private OrthogonalTiledMapRenderer tmr;
+
+    private TiledMapTileLayer tiledMapTileLayer;
+    private int tileSize;
 
     public Play(GameStateManager gsm) {
         super(gsm);
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Game.V_WIDTH, Game.V_HEIGHT);
+
         world = new World(new Vector2(0, -0.81f), true);
-        world.setContactListener(new MyContactListener());
+        cl = new MyContactListener();
+        world.setContactListener(cl);
         box2DDebugRenderer = new Box2DDebugRenderer();
 
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(150 / Game.PPM, 50 / Game.PPM);
-        bodyDef.type = BodyDef.BodyType.StaticBody;
-        Body body = world.createBody(bodyDef);
+        tiledMap = new TmxMapLoader().load("maps/level1.tmx");
+        tmr = new OrthogonalTiledMapRenderer(tiledMap);
+        tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get("red");
+        tileSize = tiledMapTileLayer.getTileWidth();
 
+
+        BodyDef bodyDef = new BodyDef();
+        Body body = world.createBody(bodyDef);
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(50 / Game.PPM, 10 / Game.PPM);
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = B2DVars.BIT_GROUND;
-        fixtureDef.filter.maskBits = B2DVars.BIT_BALL | B2DVars.BIT_BOX;
-        fixtureDef.shape = shape;
-        body.createFixture(fixtureDef).setUserData("ground");
+
 
         bodyDef.position.set(150 / Game.PPM, 200 / Game.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        body = world.createBody(bodyDef);
+
+        playerBody = world.createBody(bodyDef);
         PolygonShape box = new PolygonShape();
         box.setAsBox(5 / Game.PPM, 5 / Game.PPM);
         fixtureDef = new FixtureDef();
@@ -50,21 +73,41 @@ public class Play extends GameState {
         fixtureDef.filter.maskBits = B2DVars.BIT_GROUND;
         fixtureDef.shape = box;
         fixtureDef.density = 1;
-        fixtureDef.restitution = 1;
-        body.createFixture(fixtureDef).setUserData("box");
+        fixtureDef.restitution = 0;
+        playerBody.createFixture(fixtureDef).setUserData("box");
 
-        bodyDef.position.set(150 / Game.PPM, 250 / Game.PPM);
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        body = world.createBody(bodyDef);
-        CircleShape ball = new CircleShape();
-        ball.setRadius(7 / Game.PPM);
-        fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = B2DVars.BIT_BALL;
+        box.setAsBox(2 / Game.PPM, 2 / Game.PPM, new Vector2(0, -5 / Game.PPM), 0);
+        fixtureDef.shape = box;
+        fixtureDef.filter.categoryBits = B2DVars.BIT_BOX;
         fixtureDef.filter.maskBits = B2DVars.BIT_GROUND;
-        fixtureDef.shape = ball;
-        fixtureDef.density = 1;
-        fixtureDef.restitution = 1;
-        body.createFixture(fixtureDef).setUserData("ball");
+        fixtureDef.isSensor = true;
+        playerBody.createFixture(fixtureDef).setUserData("foot");
+
+        for (int row = 0; row < tiledMapTileLayer.getHeight(); row++) {
+            for (int col = 0; col < tiledMapTileLayer.getWidth(); col++) {
+                TiledMapTileLayer.Cell cell = tiledMapTileLayer.getCell(col, row);
+                if (cell == null) continue;
+                if (cell.getTile() == null) continue;
+
+                bodyDef.type = BodyDef.BodyType.StaticBody;
+                bodyDef.position.set(
+                        (col + 0.5f) * tileSize / Game.PPM,
+                        (row + 0.5f) * tileSize / Game.PPM
+                );
+                ChainShape chainShape = new ChainShape();
+                Vector2[] v = new Vector2[3];
+                v[0] = new Vector2(-tileSize / 2 / Game.PPM, -tileSize / 2 / Game.PPM);
+                v[1] = new Vector2(-tileSize / 2 / Game.PPM, tileSize / 2 / Game.PPM);
+                v[2] = new Vector2(tileSize / 2 / Game.PPM, tileSize / 2 / Game.PPM);
+                chainShape.createChain(v);
+                fixtureDef.friction = 0;
+                fixtureDef.shape = chainShape;
+                fixtureDef.filter.categoryBits = B2DVars.BIT_GROUND;
+                fixtureDef.filter.maskBits = B2DVars.BIT_BOX;
+                fixtureDef.isSensor = false;
+                world.createBody(bodyDef).createFixture(fixtureDef);
+            }
+        }
     }
 
     @Override
@@ -73,11 +116,10 @@ public class Play extends GameState {
     }
 
     public void handleInput() {
-        if (CustomInput.isDown(CustomInput.BUTTON1)) {
-            System.out.println("z is down");
-        }
-        if (CustomInput.isPressed(CustomInput.BUTTON2)) {
-            System.out.println("x is pressed");
+        if (CustomInput.isPressed(CustomInput.BUTTON1)) {
+            if (cl.isPlayerOnGround()) {
+                playerBody.applyForceToCenter(0, 100 / Game.PPM, true);
+            }
         }
     }
     @Override
@@ -88,6 +130,11 @@ public class Play extends GameState {
 
     @Override
     public void render() {
+
+        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        tmr.setView(camera);
+        tmr.render();
+
         box2DDebugRenderer.render(world, camera.combined);
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
