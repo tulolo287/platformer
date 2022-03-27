@@ -7,20 +7,21 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.platformer.handlers.Content;
 import com.platformer.handlers.GameStateManager;
 import com.platformer.handlers.MyInputProcessor;
 import com.platformer.handlers.CustomInput;
 
 public class Game extends ApplicationAdapter {
 	public static final String TITLE = "Platformer game";
-	public static final int V_WIDTH = 800;
-	public static final int V_HEIGHT = 400;
+	public static final int V_WIDTH = 320;
+	public static final int V_HEIGHT = 240;
 	public static final int SCALE = 2;
 
 	public static final float PPM = 100;
 
-	private SpriteBatch batch;
-	private OrthographicCamera camera;
+	private SpriteBatch sb;
+	private OrthographicCamera cam;
 	private OrthographicCamera hudCamera;
 
 	public static final float STEP = 1 / 60f;
@@ -28,31 +29,26 @@ public class Game extends ApplicationAdapter {
 
 	private GameStateManager gsm;
 
-	public SpriteBatch getBatch() {
-		return batch;
-	}
+	public static Content res;
 
-	public OrthographicCamera getCamera() {
-		return camera;
-	}
-
-	public OrthographicCamera getHudCamera() {
-		return hudCamera;
-	}
 
 	@Override
 	public void create () {
 
 		Gdx.input.setInputProcessor(new MyInputProcessor());
 
-		batch = new SpriteBatch();
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, V_WIDTH, V_HEIGHT);
+		res = new Content();
+		res.loadTexture("images/bunny.png", "bunny");
+
+		sb = new SpriteBatch();
+		cam = new OrthographicCamera();
+		cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
 
 		hudCamera = new OrthographicCamera();
-		hudCamera.setToOrtho(false, V_WIDTH / PPM, V_HEIGHT / PPM);
+		hudCamera.setToOrtho(false, V_WIDTH, V_HEIGHT);
 
 		gsm = new GameStateManager(this);
+
 	}
 
 	@Override
@@ -66,6 +62,18 @@ public class Game extends ApplicationAdapter {
 			CustomInput.update();
 		}
 
+	}
+
+	public SpriteBatch getBatch() {
+		return sb;
+	}
+
+	public OrthographicCamera getCamera() {
+		return cam;
+	}
+
+	public OrthographicCamera getHudCamera() {
+		return hudCamera;
 	}
 	
 	@Override
