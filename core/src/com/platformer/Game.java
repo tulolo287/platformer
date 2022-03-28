@@ -14,8 +14,8 @@ import com.platformer.handlers.CustomInput;
 
 public class Game extends ApplicationAdapter {
 	public static final String TITLE = "Platformer game";
-	public static final int V_WIDTH = 320;
-	public static final int V_HEIGHT = 240;
+	public static final int V_WIDTH = 480;
+	public static final int V_HEIGHT = 320;
 	public static final int SCALE = 2;
 
 	public static final float PPM = 100;
@@ -39,6 +39,8 @@ public class Game extends ApplicationAdapter {
 
 		res = new Content();
 		res.loadTexture("images/bunny.png", "bunny");
+		res.loadTexture("images/crystal.png", "crystal");
+		res.loadTexture("images/hud.png", "hud");
 
 		sb = new SpriteBatch();
 		cam = new OrthographicCamera();
