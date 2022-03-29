@@ -33,7 +33,7 @@ import com.platformer.handlers.MyContactListener;
 
 public class Play extends GameState {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
     private final BitmapFont font = new BitmapFont();
     private World world;
@@ -101,6 +101,7 @@ public class Play extends GameState {
 
             Body body = world.createBody(bodyDef);
             body.createFixture(fixtureDef).setUserData("crystal");
+            circleShape.dispose();
 
             Crystal c = new Crystal(body);
             crystals.add(c);
@@ -123,6 +124,14 @@ public class Play extends GameState {
 
         if (CustomInput.isPressed(CustomInput.BUTTON2)) {
             switchBlocks();
+        }
+
+        if (CustomInput.isPressed()) {
+            if (CustomInput.x < Gdx.graphics.getWidth() / 2) {
+                switchBlocks();
+            } else {
+                player.getBody().applyForceToCenter(0, 500 / Game.PPM, true);
+            }
         }
     }
 
@@ -221,6 +230,7 @@ public class Play extends GameState {
         fixtureDef.density = 1;
         fixtureDef.restitution = 0;
         body.createFixture(fixtureDef).setUserData("player");
+        box.dispose();
 
         box.setAsBox(12 / Game.PPM, 5 / Game.PPM, new Vector2(0, -10 / Game.PPM), 0);
         fixtureDef.shape = box;
@@ -278,6 +288,7 @@ public class Play extends GameState {
                 fixtureDef.filter.maskBits = B2DVars.BIT_PLAYER;
                 fixtureDef.isSensor = false;
                 world.createBody(bodyDef).createFixture(fixtureDef);
+                chainShape.dispose();
             }
         }
     }
