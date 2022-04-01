@@ -33,7 +33,7 @@ import com.platformer.handlers.MyContactListener;
 
 public class Play extends GameState {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
     private final BitmapFont font = new BitmapFont();
     private World world;
@@ -119,6 +119,7 @@ public class Play extends GameState {
         if (CustomInput.isPressed(CustomInput.BUTTON1)) {
             if (cl.isPlayerOnGround()) {
                 player.getBody().applyForceToCenter(0, 500 / Game.PPM, true);
+
             }
         }
 
@@ -127,11 +128,30 @@ public class Play extends GameState {
         }
 
         if (CustomInput.isPressed()) {
-            if (CustomInput.x < Gdx.graphics.getWidth() / 2) {
-                switchBlocks();
-            } else {
-                player.getBody().applyForceToCenter(0, 500 / Game.PPM, true);
+            //System.out.println(CustomInput.x);
+            if (CustomInput.x > 0 && CustomInput.x < 250 && CustomInput.y > 1200 && CustomInput.y < 1500) {
+                //switchBlocks();
+              //  player.getBody().applyLinearImpulse(new Vector2(12, 32), new V);
+                player.getBody().setLinearVelocity(-1f, 0f);
+                player.flipX = true;
+                CustomInput.isReleased();
+
+
+            } else if (CustomInput.x > 450 && CustomInput.x < 700 && CustomInput.y > 1200 && CustomInput.y < 1500) {
+                //player.getBody().applyForceToCenter(500 / Game.PPM, 0, true);
+                player.getBody().setLinearVelocity(1f, 0f);
+                player.flipX = false;
+                CustomInput.isReleased();
+
+            } else if (CustomInput.x > 2200 && CustomInput.x < 2500 && CustomInput.y > 1200 && CustomInput.y < 1500) {
+            //player.getBody().applyForceToCenter(500 / Game.PPM, 0, true);
+                if (cl.isPlayerOnGround()) {
+                    player.getBody().applyForceToCenter(0, 1500 / Game.PPM, true);
+                    //CustomInput.isReleased();
+                }
+
             }
+
         }
     }
 
@@ -217,22 +237,22 @@ public class Play extends GameState {
 
 
         bodyDef.position.set(150 / Game.PPM, 200 / Game.PPM);
-        bodyDef.linearVelocity.set(1f, 0);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         Body body = world.createBody(bodyDef);
 
         PolygonShape box = new PolygonShape();
-        box.setAsBox(12 / Game.PPM, 12 / Game.PPM);
+        box.setAsBox(15 / Game.PPM, 25 / Game.PPM, new Vector2(-25 / Game.PPM, -10 / Game.PPM), 0);
         fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = B2DVars.BIT_PLAYER;
         fixtureDef.filter.maskBits = B2DVars.BIT_RED | B2DVars.BIT_CRYSTAL;
         fixtureDef.shape = box;
         fixtureDef.density = 1;
+        fixtureDef.friction = 1;
         fixtureDef.restitution = 0;
         body.createFixture(fixtureDef).setUserData("player");
         box.dispose();
 
-        box.setAsBox(12 / Game.PPM, 5 / Game.PPM, new Vector2(0, -10 / Game.PPM), 0);
+        box.setAsBox(15 / Game.PPM, 5 / Game.PPM, new Vector2(-25 / Game.PPM, -35 / Game.PPM), 0);
         fixtureDef.shape = box;
         fixtureDef.filter.categoryBits = B2DVars.BIT_PLAYER;
         fixtureDef.filter.maskBits = B2DVars.BIT_RED;

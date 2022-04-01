@@ -38,6 +38,7 @@ public class Game extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(new MyInputProcessor());
 
 		res = new Content();
+		res.loadTexture("images/Run.png", "duck");
 		res.loadTexture("images/bunny.png", "bunny");
 		res.loadTexture("images/crystal.png", "crystal");
 		res.loadTexture("images/hud.png", "hud");

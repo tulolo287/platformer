@@ -8,12 +8,14 @@ import com.platformer.Game;
 public class Player extends B2DSprite{
     private int numCrystals;
     private int totalCrystals;
+    public boolean flip;
 
     public Player(Body body) {
         super(body);
-        Texture texture = Game.res.getTexture("bunny");
-        TextureRegion[] sprites = TextureRegion.split(texture, 32, 32)[0];
+        Texture texture = Game.res.getTexture("duck");
+        TextureRegion[] sprites = TextureRegion.split(texture, 2000 / 8, 72)[0];
         setAnimation(sprites, 1 / 12f);
+        flip = false;
     }
 
     public int getNumCrystals() {

@@ -12,6 +12,7 @@ public class B2DSprite {
     protected Animation animation;
     protected float width;
     protected float height;
+    public boolean flipX;
 
     public B2DSprite(Body body) {
         this.body = body;
@@ -22,6 +23,7 @@ public class B2DSprite {
         animation.setFrames(reg, delay);
         width = reg[0].getRegionWidth();
         height = reg[0].getRegionHeight();
+        flipX = true;
     }
 
     public void update(float dt) {
@@ -30,7 +32,8 @@ public class B2DSprite {
 
     public void render(SpriteBatch sb) {
         sb.begin();
-        sb.draw(animation.getFrame(), body.getPosition().x * B2DVars.PPM - width / 2, body.getPosition().y * B2DVars.PPM - height / 2);
+        sb.draw(animation.getFrame(),
+                flipX ? body.getPosition().x+width : body.getPosition().x, body.getPosition().y, flipX ? -width : width, height);
         sb.end();
     }
 
