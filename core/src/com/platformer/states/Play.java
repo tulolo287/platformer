@@ -250,7 +250,7 @@ public class Play extends GameState {
         fixtureDef.friction = 1;
         fixtureDef.restitution = 0;
         body.createFixture(fixtureDef).setUserData("player");
-        box.dispose();
+
 
         box.setAsBox(15 / Game.PPM, 5 / Game.PPM, new Vector2(-25 / Game.PPM, -35 / Game.PPM), 0);
         fixtureDef.shape = box;
@@ -258,6 +258,7 @@ public class Play extends GameState {
         fixtureDef.filter.maskBits = B2DVars.BIT_RED;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData("foot");
+        box.dispose();
 
         player = new Player(body);
     }
